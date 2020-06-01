@@ -7,13 +7,16 @@
 </head>
 <body>
 <h1>Birdboard</h1>
-@foreach($projects as $project)
     <ul>
+        @forelse($projects as $project)
         <li>
-            {{ $project->title }}
+            <a href="{{ $project->path() }}">{{ $project->title }}</a>
         </li>
+        @empty
+            <li>No projects yet.</li>
+        @endforelse
     </ul>
-@endforeach
+
 
 </body>
 </html>
