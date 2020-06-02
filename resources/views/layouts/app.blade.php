@@ -25,7 +25,7 @@
             <div class="container mx-auto">
                 <div class="flex justify-between items-center py-2">
                     <h1>
-                        <a class="navbar-brand" href="{{ url('/') }}">
+                        <a class="navbar-brand" href="{{ url('/projects') }}">
                             <img src="/images/logo.svg" alt="Birdboard">
                         </a>
                     </h1>
@@ -68,7 +68,7 @@
             </div>
         </nav>
 
-        <main class="container mx-auto py-4">
+        <main class="container mx-auto py-6">
             @yield('content')
         </main>
     </div>
