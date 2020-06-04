@@ -19,6 +19,7 @@ class ManageProjectsTest extends TestCase
 
         $this->get('/projects')->assertRedirect('login');
         $this->get('/projects/create')->assertRedirect('login');
+        $this->get($project->path().'/edit')->assertRedirect('login');
         $this->get($project->path())->assertRedirect('login');
         $this->post('/projects', $project->toArray())->assertRedirect('login');
 
@@ -37,11 +38,11 @@ class ManageProjectsTest extends TestCase
             'notes' => 'General notes here.'
         ];
 
-        $reponse = $this->post('/projects', $attributes);
+        $response = $this->post('/projects', $attributes);
 
         $project = Project::where($attributes)->first();
 
-        $reponse->assertRedirect($project->path());
+        $response->assertRedirect($project->path());
 
 
         $this->get($project->path())
@@ -52,15 +53,47 @@ class ManageProjectsTest extends TestCase
     }
 
     /** @test */
+    function unauthorized_users_cannot_delete_projects()
+    {
+        $project = ProjectFactory::create();
+
+        $this->delete($project->path())->assertRedirect('/login');
+
+        $this->signIn();
+
+        $this->delete($project->path())
+            ->assertStatus(403);
+    }
+
+    /** @test */
+    function a_user_can_delete_a_project()
+    {
+        $project = ProjectFactory::create();
+
+        $this->actingAs($project->owner)->delete($project->path())->assertRedirect('/projects');
+        $this->assertDatabaseMissing('projects', $project->only('id'));
+    }
+
+    /** @test */
     function a_user_can_update_a_project()
     {
         $project = ProjectFactory::create();
 
         $this->actingAs($project->owner)
-            ->patch($project->path(), $attributes = ['notes' => 'Changed'])
+            ->patch($project->path(), $attributes = ['title' => 'Changed', 'description' => 'Changed', 'notes' => 'Changed'])
             ->assertRedirect($project->path());
 
+        $this->get($project->path().'/edit')->assertOk();
+
         $this->assertDatabaseHas('projects', $attributes);
+    }
+
+    /** @test */
+    function a_user_can_update_a_projects_general_notes()
+    {
+        $project = ProjectFactory::create();
+
+        $this->get($project->path().'/edit')->assertRedirect('login');
     }
 
     /** @test */

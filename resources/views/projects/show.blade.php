@@ -5,7 +5,7 @@
         <div class="flex justify-between items-end w-full">
             <p class="text-grey text-sm font-normal">
                 <a href="/projects" class="text-grey no-underline hover:underline">My Projects</a> / {{ $project->title }}</p>
-            <a href="/projects/create" class="button">New Project</a>
+            <a href="{{ $project->path().'/edit' }}" class="button">Edit Project</a>
         </div>
     </header>
 
@@ -28,43 +28,47 @@
                         </form>
                     </div>
                     @endforeach
+
                     <div class="card mb-3">
                         <form action="{{ $project->path() . '/tasks' }}" method="POST">
                             @csrf
-
                             <input placeholder="Add a new task..." class="w-full" name="body">
                         </form>
                     </div>
-
                 </div>
 
                 <div>
-                    <h2 class="text-lg text-grey font-normal mb-3">General Notes</h2>
+                    <h2 class="text-lg text-muted font-light mb-3">General Notes</h2>
 
                     <form method="POST" action="{{ $project->path() }}">
                         @csrf
                         @method('PATCH')
+
                         <textarea
                                 name="notes"
                                 class="card text-default w-full mb-4"
-                                style="min-height: 200px;"
-                                placeholder="Anything special that you want to make a note of?">
-                            {{ $project->notes }}
-                        </textarea>
+                                style="min-height: 200px"
+                                placeholder="Anything special that you want to make a note of?"
+                                required
+                        >{{ $project->notes }}</textarea>
+                        @if($errors->any())
+                            <div class="field mt-6">
+                                @foreach($errors->all() as $error)
+                                    <li class="text-red text-sm">{{$error}}</li>
+                                @endforeach
+                            </div>
+                        @endif
 
                         <button type="submit" class="button">Save</button>
-
                     </form>
                 </div>
-
             </div>
 
-            <div class="lg:w-1/4 px-3">
-                    @include('projects.card')
+            <div class="lg:w-1/4 px-3 lg:py-8">
+                @include('projects.card')
+                @include('projects.activity.card')
             </div>
+
         </div>
     </main>
-
-
-
 @endsection
