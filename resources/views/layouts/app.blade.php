@@ -20,7 +20,7 @@
     <link href="{{ asset('css/app.css') }}" rel="stylesheet">
 </head>
 
-<body class="theme-dark bg-page">
+<body class="theme-light bg-page">
 <div id="app">
     <nav class="bg-header section">
         <div class="container mx-auto">
@@ -41,7 +41,7 @@
 
                 <div>
                     <!-- Right Side Of Navbar -->
-                    <ul class="navbar-nav ml-auto list-reset">
+                    <ul class="flex items-center ml-auto list-reset">
                         <!-- Authentication Links -->
                         @guest
                             <li class="nav-item">
@@ -53,7 +53,8 @@
                                 </li>
                             @endif
                         @else
-                            <li class="nav-item dropdown">
+                            <theme-switcher></theme-switcher>
+                            <li class="nav-item dropdown text-right">
                                 <a
                                         class="flex items-center text-default no-underline text-sm"
                                         href="#" role="button"
@@ -67,10 +68,25 @@
                                          src="{{ gravatar_url(auth()->user()->email) }}">
                                     ryanderon
                                 </a>
+
+                                <a class="dropdown-item no-underline hover:underline" href="{{ route('logout') }}"
+                                   onclick="event.preventDefault();
+                                                 document.getElementById('logout-form').submit();">
+                                    {{ __('Logout') }}
+                                </a>
+
+                                <form id="logout-form" action="{{ route('logout') }}" method="POST" style="display: none;">
+                                    @csrf
+                                </form>
+
                             </li>
+
                         @endguest
+
                     </ul>
+
                 </div>
+
             </div>
         </div>
     </nav>
