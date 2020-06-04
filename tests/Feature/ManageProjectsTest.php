@@ -32,24 +32,19 @@ class ManageProjectsTest extends TestCase
 
         $this->get('/projects/create')->assertStatus(200);
 
-        $attributes = [
-            'title' => $this->faker->sentence,
-            'description' => $this->faker->sentence,
-            'notes' => 'General notes here.'
-        ];
-
-        $response = $this->post('/projects', $attributes);
-
-        $project = Project::where($attributes)->first();
-
-        $response->assertRedirect($project->path());
-
-
-        $this->get($project->path())
+        $this->followingRedirects()
+            ->post('/projects', $attributes = factory(Project::class)->raw())
             ->assertSee($attributes['title'])
             ->assertSee($attributes['description'])
             ->assertSee($attributes['notes']);
+    }
 
+    /** @test */
+    function a_user_can_see_all_projects_they_have_been_invited_to_on_their_dashboard()
+    {
+        $project = tap(ProjectFactory::create())->invite($this->signIn());
+
+        $this->get('/projects')->assertSee($project->title);
     }
 
     /** @test */
@@ -57,12 +52,16 @@ class ManageProjectsTest extends TestCase
     {
         $project = ProjectFactory::create();
 
-        $this->delete($project->path())->assertRedirect('/login');
-
-        $this->signIn();
-
         $this->delete($project->path())
-            ->assertStatus(403);
+            ->assertRedirect('/login');
+
+        $user = $this->signIn();
+
+        $this->delete($project->path())->assertStatus(403);
+
+        $project->invite($user);
+
+        $this->actingAs($user)->delete($project->path())->assertStatus(403);
     }
 
     /** @test */
